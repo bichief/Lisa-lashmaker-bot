@@ -1,17 +1,19 @@
 import re
 
 from aiogram import types
+from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from keyboards.inline.date_markup import date_markup
+from keyboards.inline.date_markup import date
 from keyboards.inline.lash_markup import markup
 from keyboards.inline.time_markup import time_markup
 from loader import dp
 from states.get_contacts import GetContacts
-from utils import validators_phone
 from utils.db_api.commands.customers import get_info, update_phone, update_name, update_service_customer
 from utils.db_api.commands.service import check_rows, get_info_service
-from utils.db_api.commands.time_service import update_time_state
+from utils.db_api.commands.time_service import delete_time
+from utils.send_for_admin import new_customer
 from utils.validators_phone import validator
 
 
@@ -32,19 +34,17 @@ async def get_service(call: types.CallbackQuery):
     information = await get_info_service(name=reg[1])
     row = information.split('&')
 
-    keyboard = await date_markup(name=reg[1])
-
     await call.message.answer(f'Название - {row[0]}\n'
                               f'Описание - {row[1]}\n'
                               f'Цена - {row[2]}\n'
-                              f'Нажмите на удобное для вас время ниже:', reply_markup=keyboard)
+                              f'Нажмите на удобное для вас время ниже:', reply_markup=date)
 
 
 @dp.callback_query_handler(Text(startswith='date_'))
 async def get_time_for_service(call: types.CallbackQuery):
     global data
     data = call.data.split('_')
-    keyboard = await time_markup(name=reg[1])
+    keyboard = await time_markup(name=reg[1], day=data[1])
 
     await call.message.answer('Выберите удобное для вас время.', reply_markup=keyboard)
 
@@ -66,12 +66,15 @@ async def get_service(call: types.CallbackQuery):
         await call.message.answer(f'Отлично, Вы записываетесь на {regex[2]}\n'
                                   f'Дата записи: {regex[1]}\n\n'
                                   f'В скором времени с вами свяжутся :)')
-        await update_time_state(time_id=regex[3])
+        information = await get_info(telegram_id=call.from_user.id)
+        await new_customer(name=information.split('&')[0], phone=information.split('&')[1])
+        await delete_time(time_id=regex[3])
         await update_service_customer(telegram_id=call.from_user.id, name_service=regex[2], time_service=regex[1])
 
 
 @dp.message_handler(state=GetContacts.Phone)
 async def get_phone(message: types.Message):
+    global number
     text = message.text
 
     phone = await validator(phone=text)
@@ -79,6 +82,7 @@ async def get_phone(message: types.Message):
     if phone:
         await message.answer('Отлично, теперь введите Ваше имя.')
         await update_phone(telegram_id=message.from_user.id, phone=text)
+        number = text
         await GetContacts.Name.set()
     else:
         await message.answer('Номер введён неверно, попробуйте еще раз.')
@@ -86,9 +90,12 @@ async def get_phone(message: types.Message):
 
 
 @dp.message_handler(state=GetContacts.Name)
-async def get_name(message: types.Message):
+async def get_name(message: types.Message, state: FSMContext):
     name = message.text
     await update_name(telegram_id=message.from_user.id, name=name)
     await message.answer('Отлично!\n'
                          'С вами скоро свяжутся.')
-    await update_time_state(time_id=regex[3])
+    await state.reset_state()
+    await delete_time(time_id=regex[3])
+    await new_customer(name, phone=number)
+

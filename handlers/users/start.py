@@ -4,7 +4,6 @@ from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart, Text
 
 from keyboards.default.menu_markup import menu
-from keyboards.inline.lash_markup import markup
 from keyboards.inline.link_markup import link
 from keyboards.inline.time_markup import time_markup
 
@@ -14,13 +13,10 @@ from loader import dp
 
 @dp.message_handler(CommandStart())
 async def start_cmd(message: types.Message):
-    check_state = await cs.add_customer(telegram_id=message.from_user.id)
-    if check_state is True:
-        print('Уже есть в БД')
-    else:
-        await message.answer(f"Здесь вы увидете приветственное сообщение\n"
-                             f"при команде /start, собственно\n\n"
-                             f"Ниже прикреплена клавиатура, воспользуйтейсь ей для записи", reply_markup=menu)
+    await cs.add_customer(telegram_id=message.from_user.id)
+    await message.answer(f"Здесь вы увидете приветственное сообщение\n"
+                         f"при команде /start, собственно\n\n"
+                         f"Ниже прикреплена клавиатура, воспользуйтейсь ей для записи", reply_markup=menu)
 
 
 @dp.message_handler(Text(equals='Где нас найти'))

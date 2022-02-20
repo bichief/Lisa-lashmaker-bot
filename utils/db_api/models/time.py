@@ -8,6 +8,7 @@ class Time(Base):
 
     id = Column(Integer(), primary_key=True, autoincrement=True)
     service_name = Column(String())
+    day = Column(String())
     time = Column(String())
     state = Column(String(), default='false')
 

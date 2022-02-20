@@ -1,19 +1,25 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from utils.db_api.commands.time_service import get_date
-
-
-async def date_markup(name):
-    global btn
-    time = InlineKeyboardMarkup(row_width=2)
-
-    array = await get_date(name=name)
-    if not array:
-        btn = InlineKeyboardButton(text='Свободных дат нет.', callback_data='empty')
-        time.add(btn)
-        return time
-
-    for row in array:
-        btn = InlineKeyboardButton(text=f'{row}', callback_data=f'date_{row}_{name}')
-        time.add(btn)
-    return time
+date = InlineKeyboardMarkup(row_width=2, inline_keyboard=[
+    [
+        InlineKeyboardButton(text='Понедельник', callback_data='date_monday'),
+    ],
+    [
+        InlineKeyboardButton(text='Вторник', callback_data='date_tuesday'),
+    ],
+    [
+        InlineKeyboardButton(text='Среда', callback_data='date_wednesday'),
+    ],
+    [
+        InlineKeyboardButton(text='Четверг', callback_data='date_thursday'),
+    ],
+    [
+        InlineKeyboardButton(text='Пятница', callback_data='date_friday'),
+    ],
+    [
+        InlineKeyboardButton(text='Суббота', callback_data='date_saturday'),
+    ],
+    [
+        InlineKeyboardButton(text='Вокресенье', callback_data='date_sunday')
+    ]
+])

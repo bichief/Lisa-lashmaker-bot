@@ -37,3 +37,14 @@ async def get_info_service(name):
 
         for row in result.scalars():
             return f'{row.name}&{row.description}&{row.price}'
+
+async def get_service_id():
+    array = []
+    async with async_sessionmaker() as session:
+        info = select(Service)
+
+        result = await session.execute(info)
+
+        for row in result.scalars():
+            array.append(f'{row.id} | {row.name}')
+        return array

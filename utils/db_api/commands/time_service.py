@@ -1,15 +1,14 @@
-from sqlalchemy import select, update
+from sqlalchemy import select, and_, delete
 
 from utils.db_api.base import async_sessionmaker
-from utils.db_api.models.dates import Dates
-from utils.db_api.models.service import Service
+
 from utils.db_api.models.time import Time
 
 
-async def get_time(name):
+async def get_time(name, day):
     array = []
     async with async_sessionmaker() as session:
-        info = select(Time).where(Time.service_name == name)
+        info = select(Time).filter(and_(Time.service_name == name), (Time.day == day))
 
         result = await session.execute(info)
 
@@ -34,22 +33,27 @@ async def get_time_state(name):
         return array
 
 
-async def update_time_state(time_id):
+async def delete_time(time_id):
     async with async_sessionmaker() as session:
         info = (
-            update(Time).where(Time.id == int(time_id)).values(state='true')
+            delete(Time).where(Time.id == int(time_id))
         )
         await session.execute(info)
         await session.commit()
 
+async def time_add_db(day, service_name, time):
+    async with async_sessionmaker() as session:
+        await session.merge(Time(service_name=service_name, day=day, time=time, state='false'))
+        await session.commit()
 
-async def get_date(name):
+async def get_time_id():
     array = []
     async with async_sessionmaker() as session:
-        info = select(Dates).where(Dates.service_name == name)
+        info = select(Time)
 
         result = await session.execute(info)
 
         for row in result.scalars():
-            array.append(row.date)
+            array.append(f'{row.id} | {row.service_name} | {row.day} | {row.time}')
         return array
+

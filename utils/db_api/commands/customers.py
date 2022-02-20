@@ -13,6 +13,7 @@ async def add_customer(telegram_id):
     except IntegrityError:
         return True
 
+
 async def get_info(telegram_id):
     try:
         async with async_sessionmaker() as session:
@@ -27,7 +28,6 @@ async def get_info(telegram_id):
         return False
 
 
-
 async def update_phone(telegram_id, phone):
     async with async_sessionmaker() as session:
         info = (
@@ -35,6 +35,7 @@ async def update_phone(telegram_id, phone):
         )
         await session.execute(info)
         await session.commit()
+
 
 async def update_name(telegram_id, name):
     async with async_sessionmaker() as session:
@@ -44,10 +45,12 @@ async def update_name(telegram_id, name):
         await session.execute(info)
         await session.commit()
 
+
 async def update_service_customer(telegram_id, name_service, time_service):
     async with async_sessionmaker() as session:
         info = (
-            update(Customers).where(Customers.telegram_id == telegram_id).values(name_service=name_service, time_service=time_service)
+            update(Customers).where(Customers.telegram_id == telegram_id).values(name_service=name_service,
+                                                                                 time_service=time_service)
         )
         await session.execute(info)
         await session.commit()
