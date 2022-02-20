@@ -28,6 +28,7 @@ async def recording(message: types.Message):
 
 @dp.callback_query_handler(Text(startswith='service_'))
 async def get_service(call: types.CallbackQuery):
+    await call.message.delete()
     global msg
     global reg
     reg = call.data.split('_')
@@ -42,6 +43,7 @@ async def get_service(call: types.CallbackQuery):
 
 @dp.callback_query_handler(Text(startswith='date_'))
 async def get_time_for_service(call: types.CallbackQuery):
+    await call.message.delete()
     global data
     data = call.data.split('_')
     keyboard = await time_markup(name=reg[1], day=data[1])
@@ -51,21 +53,22 @@ async def get_time_for_service(call: types.CallbackQuery):
 
 @dp.callback_query_handler(Text(startswith='time_'))
 async def get_service(call: types.CallbackQuery):
-    global regex
+    await call.message.delete()
+    global regex, msg
     regex = call.data.split('_')
 
     check = await get_info(call.from_user.id)
     if check.split('&')[0] == 'none':
-        await call.message.answer(f'Отлично, Вы записываетесь на {regex[2]}\n'
-                                  f'Дата записи: {data[1]} - {regex[1]}\n\n'
-                                  f'Напишите свой номер телефона\n'
-                                  f'Пример: +79051235467')
+        msg = await call.message.answer(f'Отлично, Вы записываетесь на {regex[2]}\n'
+                                        f'Дата записи: {data[1]} - {regex[1]}\n\n'
+                                        f'Напишите свой номер телефона\n'
+                                        f'Пример: +79051235467')
         await GetContacts.first()
     else:
 
-        await call.message.answer(f'Отлично, Вы записываетесь на {regex[2]}\n'
-                                  f'Дата записи: {regex[1]}\n\n'
-                                  f'В скором времени с вами свяжутся :)')
+        msg = await call.message.answer(f'Отлично, Вы записываетесь на {regex[2]}\n'
+                                        f'Дата записи: {regex[1]}\n\n'
+                                        f'В скором времени с вами свяжутся :)')
         information = await get_info(telegram_id=call.from_user.id)
         await new_customer(name=information.split('&')[0], phone=information.split('&')[1])
         await delete_time(time_id=regex[3])
@@ -74,23 +77,25 @@ async def get_service(call: types.CallbackQuery):
 
 @dp.message_handler(state=GetContacts.Phone)
 async def get_phone(message: types.Message):
-    global number
+    await msg.delete()
+    global number, mess
     text = message.text
 
     phone = await validator(phone=text)
 
     if phone:
-        await message.answer('Отлично, теперь введите Ваше имя.')
+        mess = await message.answer('Отлично, теперь введите Ваше имя.')
         await update_phone(telegram_id=message.from_user.id, phone=text)
         number = text
         await GetContacts.Name.set()
     else:
-        await message.answer('Номер введён неверно, попробуйте еще раз.')
+        mess = await message.answer('Номер введён неверно, попробуйте еще раз.')
         await GetContacts.Phone.set()
 
 
 @dp.message_handler(state=GetContacts.Name)
 async def get_name(message: types.Message, state: FSMContext):
+    await mess.delete()
     name = message.text
     await update_name(telegram_id=message.from_user.id, name=name)
     await message.answer('Отлично!\n'
@@ -98,4 +103,3 @@ async def get_name(message: types.Message, state: FSMContext):
     await state.reset_state()
     await delete_time(time_id=regex[3])
     await new_customer(name, phone=number)
-

@@ -8,9 +8,7 @@ async def time_markup(name, day):
     time = InlineKeyboardMarkup(row_width=2)
     array = await get_time(name=name, day=day)
     if not array:
-        btn = InlineKeyboardButton(text='Свободных мест нет.', callback_data='empty')
-        time.add(btn)
-        return time
+        return False
 
     for row in array:
         regex = row.split('&')
