@@ -76,8 +76,16 @@ async def get_service(call: types.CallbackQuery):
         msg = await call.message.answer_photo(photo=photo, caption='Ты успешно записана!\n'
                                                                    'Вскоре я свяжусь с тобой, чтобы подтвердить запись!\n'
                                                                    'Надеюсь вскоре увидеть тебя в своем уютном кабинете! 🤗')
-        information = await get_info(telegram_id=call.from_user.id)
-        await new_customer(name=information.split('&')[0], phone=information.split('&')[1])
+        array = await get_all_from_customers(telegram_id=call.from_user.id)
+
+        req = array.split('&')
+
+        name_client = req[0]
+        phone = req[1]
+        time = req[2]
+        day = req[3]
+        service_name = req[4]
+        await new_customer(name_client, phone=phone, time=time, day=day, service=service_name)
         await delete_time(time_id=regex[3])
 
 
