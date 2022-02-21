@@ -11,7 +11,7 @@ async def new_customer(name, phone, time, day, service):
                                         f'Контактный номер - {phone}\n\n'
                                         f'Время записи - {time}\n'
                                         f'День недели - {day}\n'
-                                        f'Название услуги - {service}'
+                                        f'Название услуги - {service}\n'
                                         f'Созвонитесь, дабы узнать подробности :)')
     except:
         pass
