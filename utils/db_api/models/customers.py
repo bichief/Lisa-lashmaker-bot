@@ -10,8 +10,6 @@ class Customers(Base):
     telegram_id = Column(BigInteger(), unique=True, nullable=False)
     name = Column(String(), default='none')
     phone = Column(String(), default='none')
-    name_service = Column(String(), default='none')
-    time_service = Column(String(), default='none')
 
     query: sql.Select
 

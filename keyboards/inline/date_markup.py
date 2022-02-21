@@ -21,5 +21,8 @@ date = InlineKeyboardMarkup(row_width=2, inline_keyboard=[
     ],
     [
         InlineKeyboardButton(text='Вокресенье', callback_data='date_sunday')
+    ],
+    [
+        InlineKeyboardButton(text='<< Назад', callback_data='back')
     ]
 ])

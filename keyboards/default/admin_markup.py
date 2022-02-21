@@ -51,12 +51,9 @@ add_db_time = InlineKeyboardMarkup(row_width=1, inline_keyboard=[
     ],
 ])
 
-edit_service = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[
+edit_service_db_key = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[
     [
         KeyboardButton(text='Добавить услугу')
-    ],
-    [
-        KeyboardButton(text='Изменить услугу')
     ],
     [
         KeyboardButton(text='Удалить услугу')

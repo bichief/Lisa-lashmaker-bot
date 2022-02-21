@@ -34,3 +34,19 @@ async def insert_txt_delete():
             await f.write(row)
             await f.write('\n')
         f.close()
+
+
+async def insert_service_add():
+    rows = await get_service_id()
+
+    if os.path.exists('service.txt'):
+        os.remove('service.txt')
+
+    async with aiofiles.open('service.txt', mode='a', encoding='utf-8') as f:
+        await f.write('ID | Название | Описание | Цена')
+        await f.write('\n')
+        await f.write('\n')
+        for row in rows:
+            await f.write(row)
+            await f.write('\n')
+        f.close()

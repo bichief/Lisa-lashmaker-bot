@@ -54,3 +54,18 @@ async def update_service_customer(telegram_id, name_service, time_service):
         )
         await session.execute(info)
         await session.commit()
+
+async def get_users():
+    try:
+        array = []
+        async with async_sessionmaker() as session:
+            info = select(Customers.telegram_id)
+
+            result = await session.execute(info)
+
+            for row in result.scalars():
+                array.append(row)
+        return array
+    except AttributeError:
+        print('+')
+        return False
