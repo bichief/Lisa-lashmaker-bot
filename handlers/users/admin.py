@@ -97,7 +97,7 @@ async def add_service(message: types.Message):
 
 @dp.message_handler(Text(equals='Добавить услугу'))
 async def add_db_service(message: types.Message):
-    await message.answer('Введите текс для добавления услуги в следующем формате!\n\n'
+    await message.answer('Введите текст для добавления услуги в следующем формате!\n\n'
                          'Название|Описание|Цена')
     await Admin.Add_service.set()
 
