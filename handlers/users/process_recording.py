@@ -7,7 +7,8 @@ from keyboards.inline.lash_markup import markup
 from keyboards.inline.time_markup import time_markup
 from loader import dp
 from states.get_contacts import GetContacts
-from utils.db_api.commands.customers import get_info, update_phone, update_name, update_service_customer
+from utils.db_api.commands.customers import get_info, update_phone, update_name, update_date, update_time, \
+    update_service_name
 from utils.db_api.commands.service import check_rows, get_info_service
 from utils.db_api.commands.time_service import delete_time
 from utils.send_for_admin import new_customer
@@ -29,10 +30,10 @@ async def recording(message: types.Message):
 async def get_service(call: types.CallbackQuery):
     await call.message.delete()
     global msg, super_msg
-    global reg, service
+    global reg
     reg = call.data.split('_')
-    service = reg[1]
     information = await get_info_service(name=reg[1])
+    await update_service_name(telegram_id=call.from_user.id, service_name=reg[1])
     row = information.split('&')
     photo = 'AgACAgIAAxkBAAID1GITkuQDWdAGXWNvuuAEstuVFmzIAAKYuTEbg_2ZSNQ_l4W7n_W8AQADAgADeQADIwQ'
     super_msg = await call.message.answer_photo(photo, f'💁‍♀Название услуги - <b>{row[0]}</b>\n\n'
@@ -45,9 +46,10 @@ async def get_service(call: types.CallbackQuery):
 @dp.callback_query_handler(Text(startswith='date_'))
 async def get_time_for_service(call: types.CallbackQuery):
     await call.message.delete()
-    global data, date
+    global data
     data = call.data.split('_')
     date = data[1]
+    await update_date(telegram_id=call.from_user.id, data=date)
     keyboard = await time_markup(name=reg[1], day=data[1])
     photo = 'AgACAgIAAxkBAAID0mITkrcLJKK2ydvsFX-BGFoczY5YAAKXuTEbg_2ZSBFUe-kL695VAQADAgADeQADIwQ'
     await call.message.answer_photo(photo,
@@ -57,10 +59,10 @@ async def get_time_for_service(call: types.CallbackQuery):
 @dp.callback_query_handler(Text(startswith='time_'))
 async def get_service(call: types.CallbackQuery):
     await call.message.delete()
-    global regex, msg, time
+    global regex, msg
     regex = call.data.split('_')
     time = regex[1]
-
+    await update_time(telegram_id=call.from_user.id, time=time)
     check = await get_info(call.from_user.id)
     if check.split('&')[0] == 'none':
         photo = 'AgACAgIAAxkBAAIDzmITkq5sKtW7uVgGDdSamYtz2UZFAAKUuTEbg_2ZSEx6FYfv8YzNAQADAgADeQADIwQ'
@@ -77,7 +79,6 @@ async def get_service(call: types.CallbackQuery):
         information = await get_info(telegram_id=call.from_user.id)
         await new_customer(name=information.split('&')[0], phone=information.split('&')[1])
         await delete_time(time_id=regex[3])
-        await update_service_customer(telegram_id=call.from_user.id, name_service=regex[2], time_service=regex[1])
 
 
 @dp.message_handler(state=GetContacts.Phone)
@@ -109,7 +110,7 @@ async def get_name(message: types.Message, state: FSMContext):
                                                     'Надеюсь вскоре увидеть тебя в своем уютном кабинете! 🤗')
     await state.reset_state()
     await delete_time(time_id=regex[3])
-    await new_customer(name, phone=number, day=date, service=service, time=time)
+    await new_customer(name, phone=number)
 
 
 @dp.callback_query_handler(Text(equals='back'))

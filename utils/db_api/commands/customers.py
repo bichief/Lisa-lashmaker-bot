@@ -46,14 +46,32 @@ async def update_name(telegram_id, name):
         await session.commit()
 
 
-async def update_service_customer(telegram_id, name_service, time_service):
+async def update_service_name(telegram_id, service_name):
     async with async_sessionmaker() as session:
         info = (
-            update(Customers).where(Customers.telegram_id == telegram_id).values(name_service=name_service,
-                                                                                 time_service=time_service)
+            update(Customers).where(Customers.telegram_id == telegram_id).values(service_name=service_name)
         )
         await session.execute(info)
         await session.commit()
+
+
+async def update_date(telegram_id, data):
+    async with async_sessionmaker() as session:
+        info = (
+            update(Customers).where(Customers.telegram_id == telegram_id).values(day=data)
+        )
+        await session.execute(info)
+        await session.commit()
+
+
+async def update_time(telegram_id, time):
+    async with async_sessionmaker() as session:
+        info = (
+            update(Customers).where(Customers.telegram_id == telegram_id).values(time=time)
+        )
+        await session.execute(info)
+        await session.commit()
+
 
 async def get_users():
     try:
