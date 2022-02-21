@@ -34,6 +34,7 @@ async def get_service(call: types.CallbackQuery):
     service = reg[1]
     information = await get_info_service(name=reg[1])
     row = information.split('&')
+    print(row, 'ROW ROW ROW')
     photo = 'AgACAgIAAxkBAAID1GITkuQDWdAGXWNvuuAEstuVFmzIAAKYuTEbg_2ZSNQ_l4W7n_W8AQADAgADeQADIwQ'
     super_msg = await call.message.answer_photo(photo, f'💁‍♀Название услуги - <b>{row[0]}</b>\n\n'
                                                        f'{row[1]}\n\n'
@@ -109,7 +110,7 @@ async def get_name(message: types.Message, state: FSMContext):
                                                     'Надеюсь вскоре увидеть тебя в своем уютном кабинете! 🤗')
     await state.reset_state()
     await delete_time(time_id=regex[3])
-    await new_customer(name, phone=number)
+    await new_customer(name, phone=number, day=date, service=service, time=time)
 
 
 @dp.callback_query_handler(Text(equals='back'))
