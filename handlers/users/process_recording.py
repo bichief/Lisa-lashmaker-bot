@@ -109,7 +109,7 @@ async def get_name(message: types.Message, state: FSMContext):
                                                     'Надеюсь вскоре увидеть тебя в своем уютном кабинете! 🤗')
     await state.reset_state()
     await delete_time(time_id=regex[3])
-    await new_customer(name, phone=number, day=date, service=service, time=time)
+    await new_customer(name, phone=number)
 
 
 @dp.callback_query_handler(Text(equals='back'))
