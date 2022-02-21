@@ -72,6 +72,14 @@ async def update_time(telegram_id, time):
         await session.execute(info)
         await session.commit()
 
+async def get_all_from_customers(telegram_id):
+    async with async_sessionmaker() as session:
+        info = select(Customers).where(Customers.telegram_id == telegram_id)
+
+        result = await session.execute(info)
+
+        for row in result.scalars():
+            return f'{row.name}&{row.phone}&{row.time}&{row.day}&{row.service_name}'
 
 async def get_users():
     try:
