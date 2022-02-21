@@ -34,7 +34,6 @@ async def get_service(call: types.CallbackQuery):
     service = reg[1]
     information = await get_info_service(name=reg[1])
     row = information.split('&')
-    print(row, 'ROW ROW ROW')
     photo = 'AgACAgIAAxkBAAID1GITkuQDWdAGXWNvuuAEstuVFmzIAAKYuTEbg_2ZSNQ_l4W7n_W8AQADAgADeQADIwQ'
     super_msg = await call.message.answer_photo(photo, f'💁‍♀Название услуги - <b>{row[0]}</b>\n\n'
                                                        f'{row[1]}\n\n'
