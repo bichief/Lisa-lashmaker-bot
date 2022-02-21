@@ -5,10 +5,10 @@ from utils.db_api.base import async_sessionmaker
 from utils.db_api.models.time import Time
 
 
-async def get_time(name, day):
+async def get_time(day):
     array = []
     async with async_sessionmaker() as session:
-        info = select(Time).filter(and_(Time.service_name == name), (Time.day == day))
+        info = select(Time).where(Time.day == day)
 
         result = await session.execute(info)
 
@@ -39,9 +39,9 @@ async def delete_time(time_id):
         await session.commit()
 
 
-async def time_add_db(day, service_name, time):
+async def time_add_db(day, time):
     async with async_sessionmaker() as session:
-        await session.merge(Time(service_name=service_name, day=day, time=time, state='false'))
+        await session.merge(Time(day=day, time=time, state='false'))
         await session.commit()
 
 
