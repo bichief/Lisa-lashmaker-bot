@@ -16,6 +16,7 @@ DB_PORT = env.str('DB_PORT')
 DB_USER = env.str('DB_USER')
 DB_PASS = env.str('DB_PASS')
 DB_PLUGIN = env.str("DB_PLUGIN")
+DB_PORT = env.str("DB_PORT")
 DB = env.str("DB")
 
-DB_LINK = f'{DB}+{DB_PLUGIN}://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}'
+DB_LINK = f'{DB}+{DB_PLUGIN}://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
