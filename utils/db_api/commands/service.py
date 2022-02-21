@@ -1,75 +1,97 @@
-from sqlalchemy import select, delete
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 
 from utils.db_api.base import async_sessionmaker
-from utils.db_api.models.service import Service
+from utils.db_api.models.customers import Customers
 
 
-async def get_name_service():
+async def add_customer(telegram_id):
     try:
-        array = []
-
         async with async_sessionmaker() as session:
-            name = select(Service.name)
+            await session.merge(Customers(telegram_id=telegram_id))
+            await session.commit()
+    except IntegrityError:
+        return True
 
-            result = await session.execute(name)
+
+async def get_info(telegram_id):
+    try:
+        async with async_sessionmaker() as session:
+            info = select(Customers).where(Customers.telegram_id == telegram_id)
+
+            result = await session.execute(info)
 
             for row in result.scalars():
-                if row not in array:
-                    array.append(row)
-            return array
-    except IntegrityError:
-        print('ERROR!!')
-
-async def check_rows():
-    rows = await get_name_service()
-    if len(rows) == 0:
-        return True
-    else:
-        return rows
+                return f'{row.name}&{row.phone}'
+    except AttributeError:
+        print('+')
+        return False
 
 
-async def get_info_service(name):
-    async with async_sessionmaker() as session:
-        info = select(Service).where(Service.name == name)
-
-        result = await session.execute(info)
-
-        for row in result.scalars():
-            return f'{row.name}&{row.description}&{row.price}'
-
-async def get_service_id():
-    array = []
-    async with async_sessionmaker() as session:
-        info = select(Service)
-
-        result = await session.execute(info)
-
-        for row in result.scalars():
-            array.append(f'{row.id} | {row.name}')
-        return array
-
-
-async def get_service_all():
-    array = []
-    async with async_sessionmaker() as session:
-        info = select(Service)
-
-        result = await session.execute(info)
-
-        for row in result.scalars():
-            array.append(f'{row.id} | {row.name} | {row.description} | {row.price}')
-        return array
-
-async def add_service_to_db(name, desc, price):
-    async with async_sessionmaker() as session:
-        await session.merge(Service(name=name, description=desc, price=int(price)))
-        await session.commit()
-
-async def delete_service_db(service_id):
+async def update_phone(telegram_id, phone):
     async with async_sessionmaker() as session:
         info = (
-            delete(Service).where(Service.id == int(service_id))
+            update(Customers).where(Customers.telegram_id == telegram_id).values(phone=phone)
         )
         await session.execute(info)
         await session.commit()
+
+
+async def update_name(telegram_id, name):
+    async with async_sessionmaker() as session:
+        info = (
+            update(Customers).where(Customers.telegram_id == telegram_id).values(name=name)
+        )
+        await session.execute(info)
+        await session.commit()
+
+
+async def update_service_name(telegram_id, service_name):
+    async with async_sessionmaker() as session:
+        info = (
+            update(Customers).where(Customers.telegram_id == telegram_id).values(service_name=service_name)
+        )
+        await session.execute(info)
+        await session.commit()
+
+
+async def update_date(telegram_id, data):
+    async with async_sessionmaker() as session:
+        info = (
+            update(Customers).where(Customers.telegram_id == telegram_id).values(day=data)
+        )
+        await session.execute(info)
+        await session.commit()
+
+
+async def update_time(telegram_id, time):
+    async with async_sessionmaker() as session:
+        info = (
+            update(Customers).where(Customers.telegram_id == telegram_id).values(time=time)
+        )
+        await session.execute(info)
+        await session.commit()
+
+async def get_all_from_customers(telegram_id):
+    async with async_sessionmaker() as session:
+        info = select(Customers).where(Customers.telegram_id == telegram_id)
+
+        result = await session.execute(info)
+
+        for row in result.scalars():
+            return f'{row.name}&{row.phone}&{row.time}&{row.day}&{row.service_name}'
+
+async def get_users():
+    try:
+        array = []
+        async with async_sessionmaker() as session:
+            info = select(Customers.telegram_id)
+
+            result = await session.execute(info)
+
+            for row in result.scalars():
+                array.append(row)
+        return array
+    except AttributeError:
+        print('+')
+        return False
