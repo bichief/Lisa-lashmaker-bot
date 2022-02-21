@@ -42,29 +42,17 @@ async def second_step_add_time(call: types.CallbackQuery):
     global day
     regex = call.data.split('_')
     day = regex[1]  # день
-    await insert_txt()
-    async with aiofiles.open('service.txt', mode='rb') as f:
-        await bot.send_document(call.from_user.id, f,
-                                caption='Введите название Услуги, для которой необходимо изменить время')
-        f.close()
-    await Admin.first()
+    await call.message.answer('Введите время ЧЕРЕЗ запятную, БЕЗ пробелов.\n\n'
+                              'Пример: 9:30,10:00,11:00')
+    await Admin.ID.set()
 
 
 @dp.message_handler(state=Admin.ID)
-async def state_machine_add_time(message: types.Message):
-    global service_name
-    service_name = message.text  # ид товара
-    await message.answer('Хорошо, теперь отправьте мне время ЧЕРЕЗ запятую БЕЗ пробела.\n\n'
-                         'Пример: 9:30,10:00,11:00')
-    await Admin.Time.set()
-
-
-@dp.message_handler(state=Admin.Time)
-async def help_me_pls(message: types.Message, state: FSMContext):
+async def state_machine_add_time(message: types.Message, state: FSMContext):
     time = message.text.split(',')
 
     for row in time:
-        await time_add_db(day=day, service_name=service_name, time=row)
+        await time_add_db(day=day, time=row)
 
     await message.answer('Время успешно добавлено!', reply_markup=admin)
     await state.reset_state()
@@ -97,7 +85,7 @@ async def add_service(message: types.Message):
 
 @dp.message_handler(Text(equals='Добавить услугу'))
 async def add_db_service(message: types.Message):
-    await message.answer('Введите текст для добавления услуги в следующем формате!\n\n'
+    await message.answer('Введите текс для добавления услуги в следующем формате!\n\n'
                          'Название|Описание|Цена')
     await Admin.Add_service.set()
 
@@ -128,10 +116,12 @@ async def delete_service(message: types.Message, state: FSMContext):
     await message.answer('Услуга была успешно удалена!')
     await state.reset_state()
 
+
 @dp.message_handler(Text(equals='Рассылка пользователям'))
 async def for_all_users(message: types.Message):
     await message.answer('Супер, введите сообщение для рассылки.')
     await Admin.For_all.set()
+
 
 @dp.message_handler(state=Admin.For_all)
 async def send_for_all(message: types.Message, state: FSMContext):
