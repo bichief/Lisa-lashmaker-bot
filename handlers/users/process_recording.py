@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
-from keyboards.inline.date_markup import date_makup
+from keyboards.inline.date_markup import date_keyboard
 from keyboards.inline.lash_markup import markup
 from keyboards.inline.time_markup import time_markup
 from loader import dp
@@ -40,7 +40,7 @@ async def get_service(call: types.CallbackQuery):
                                                        f'{row[1]}\n\n'
                                                        f'💰Цена - <b>{row[2]} р.</b>\n\n'
                                                        f'📅Теперь выбери наиболее удобную дату для записи',
-                                                reply_markup=date)
+                                                reply_markup=date_keyboard)
 
 
 @dp.callback_query_handler(Text(startswith='date_'))
