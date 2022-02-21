@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
-from keyboards.inline.date_markup import date
+from keyboards.inline.date_markup import date_makup
 from keyboards.inline.lash_markup import markup
 from keyboards.inline.time_markup import time_markup
 from loader import dp
