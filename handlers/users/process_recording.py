@@ -8,7 +8,7 @@ from keyboards.inline.time_markup import time_markup
 from loader import dp
 from states.get_contacts import GetContacts
 from utils.db_api.commands.customers import get_info, update_phone, update_name, update_date, update_time, \
-    update_service_name
+    update_service_name, get_all_from_customers
 from utils.db_api.commands.service import check_rows, get_info_service
 from utils.db_api.commands.time_service import delete_time
 from utils.send_for_admin import new_customer
@@ -110,7 +110,18 @@ async def get_name(message: types.Message, state: FSMContext):
                                                     'Надеюсь вскоре увидеть тебя в своем уютном кабинете! 🤗')
     await state.reset_state()
     await delete_time(time_id=regex[3])
-    await new_customer(name, phone=number)
+
+    array = await get_all_from_customers(telegram_id=message.from_user.id)
+
+    information = array.split('&')
+
+    name_client = information[0]
+    phone = information[1]
+    time = information[2]
+    day = information[3]
+    service_name = information[4]
+
+    await new_customer(name_client, phone=phone, time=time, day=day, service=service_name)
 
 
 @dp.callback_query_handler(Text(equals='back'))
