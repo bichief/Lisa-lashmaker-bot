@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-date_markup = InlineKeyboardMarkup(row_width=2, inline_keyboard=[
+date_keyboard = InlineKeyboardMarkup(row_width=2, inline_keyboard=[
     [
         InlineKeyboardButton(text='Понедельник', callback_data='date_monday'),
     ],
