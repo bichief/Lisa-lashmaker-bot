@@ -50,7 +50,7 @@ async def get_time_for_service(call: types.CallbackQuery):
     data = call.data.split('_')
     date = data[1]
     await update_date(telegram_id=call.from_user.id, data=date)
-    keyboard = await time_markup(name=reg[1], day=data[1])
+    keyboard = await time_markup(day=data[1])
     photo = 'AgACAgIAAxkBAAID0mITkrcLJKK2ydvsFX-BGFoczY5YAAKXuTEbg_2ZSBFUe-kL695VAQADAgADeQADIwQ'
     await call.message.answer_photo(photo,
                                     '🙆‍♀Выбери свободное время для записи', reply_markup=keyboard)
