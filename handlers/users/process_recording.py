@@ -86,7 +86,7 @@ async def get_service(call: types.CallbackQuery):
         day = req[3]
         service_name = req[4]
         await new_customer(name_client, phone=phone, time=time, day=day, service=service_name)
-        await delete_time(time_id=regex[3])
+        await delete_time(time_id=regex[2])
 
 
 @dp.message_handler(state=GetContacts.Phone)
@@ -117,7 +117,7 @@ async def get_name(message: types.Message, state: FSMContext):
                                                     'Вскоре я свяжусь с тобой, чтобы подтвердить запись!\n'
                                                     'Надеюсь вскоре увидеть тебя в своем уютном кабинете! 🤗')
     await state.reset_state()
-    await delete_time(time_id=regex[3])
+    await delete_time(time_id=regex[2])
 
     array = await get_all_from_customers(telegram_id=message.from_user.id)
 
