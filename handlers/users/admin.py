@@ -15,7 +15,7 @@ from utils.db_api.commands.service import add_service_to_db, delete_service_db
 from utils.db_api.commands.time_service import time_add_db, delete_time
 
 
-@dp.message_handler(Command('login'), user_id=417436565)
+@dp.message_handler(Command('login'), user_id=[417436565, 1955750981])
 async def admin_login(message: types.Message):
     global msg
     msg = await message.answer('Вы успешно вошли в админ-панель.\n\n'
