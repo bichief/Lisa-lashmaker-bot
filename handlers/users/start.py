@@ -48,11 +48,6 @@ async def location(message: types.Message):
                                   longitude='35.904791')
 
 
-@dp.message_handler(content_types=['photo'])
-async def get_file_id(message: types.Message):
-    await message.answer(message.photo[-1].file_id)
-
-
 @dp.message_handler(Text(equals='Портфолио'))
 async def portfolio(message: types.Message):
     photo = 'AgACAgIAAxkBAAID2GITlFyPqfFVLK-hZmPXtSEH_ixPAAKeuTEbg_2ZSIF8GTODfd1_AQADAgADeQADIwQ'
