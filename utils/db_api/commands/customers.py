@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 
 from utils.db_api.base import async_sessionmaker
 from utils.db_api.models.customers import Customers
+from utils.send_for_referrals import send_ref
 
 
 async def add_customer(telegram_id):
@@ -72,6 +73,7 @@ async def update_time(telegram_id, time):
         await session.execute(info)
         await session.commit()
 
+
 async def get_all_from_customers(telegram_id):
     async with async_sessionmaker() as session:
         info = select(Customers).where(Customers.telegram_id == telegram_id)
@@ -80,6 +82,19 @@ async def get_all_from_customers(telegram_id):
 
         for row in result.scalars():
             return f'{row.name}&{row.phone}&{row.time}&{row.day}&{row.service_name}'
+
+
+async def get_from_customers():
+    async with async_sessionmaker() as session:
+        info = select(Customers)
+        array = []
+        result = await session.execute(info)
+
+        for row in result.scalars():
+            array.append(
+                f'{row.id} | {row.name} | {row.phone} | {row.time} | {row.day} | {row.service_name} | {row.referral_balance}')
+        return array
+
 
 async def get_users():
     try:
@@ -95,3 +110,92 @@ async def get_users():
     except AttributeError:
         print('+')
         return False
+
+
+async def get_referral_name(telegram_id):
+    try:
+        async with async_sessionmaker() as session:
+            info = select(Customers).where(Customers.telegram_id == int(telegram_id))
+
+            result = await session.execute(info)
+
+            for row in result.scalars():
+                return row.name
+    except AttributeError:
+        print('+')
+        return False
+
+
+async def insert_referral_name(telegram_id, referral_name, referral_id):
+    try:
+        async with async_sessionmaker() as session:
+            info = (
+                update(Customers).where(Customers.telegram_id == telegram_id).values(referral_name=referral_name,
+                                                                                     referral=referral_id)
+            )
+            await session.execute(info)
+            await session.commit()
+    except:
+        pass
+
+
+async def update_referral_balance(telegram_id):
+    async with async_sessionmaker() as session:
+        data = select(Customers).where(Customers.telegram_id == int(telegram_id))
+
+        result = await session.execute(data)
+
+        for row in result.scalars():
+            referral_id = row.referral
+            print(referral_id)
+            name = row.name
+
+        select_balance = select(Customers).where(Customers.telegram_id == int(referral_id))
+
+        information_balance = await session.execute(select_balance)
+
+        for row in information_balance.scalars():
+            old_balance = row.referral_balance
+
+        new_balance = old_balance + 100
+
+        info = (
+            update(Customers).where(Customers.telegram_id == int(referral_id)).values(referral_balance=new_balance)
+        )
+        await session.execute(info)
+        await session.commit()
+
+        await send_ref(telegram_id=referral_id, name=name)
+
+
+async def get_balance(telegram_id):
+    try:
+        async with async_sessionmaker() as session:
+            info = select(Customers).where(Customers.telegram_id == int(telegram_id))
+
+            result = await session.execute(info)
+
+            for row in result.scalars():
+                return row.referral_balance
+    except AttributeError:
+        print('+')
+        return False
+
+
+async def deduct_referral_balance(customer_id, amount):
+    async with async_sessionmaker() as session:
+
+        data = select(Customers).where(Customers.id == int(customer_id))
+
+        result = await session.execute(data)
+
+        for row in result.scalars():
+            old_balance = row.referral_balance
+
+        new_balance = old_balance - int(amount)
+
+        info = (
+            update(Customers).where(Customers.id == int(customer_id)).values(referral_balance=new_balance)
+        )
+        await session.execute(info)
+        await session.commit()

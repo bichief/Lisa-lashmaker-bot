@@ -8,6 +8,9 @@ class Customers(Base):
 
     id = Column(Integer(), primary_key=True, autoincrement=True)
     telegram_id = Column(BigInteger(), unique=True, nullable=False)
+    referral = Column(String(), default='none')
+    referral_name = Column(String(), default='none')
+    referral_balance = Column(Integer(), default=0)
     name = Column(String(), default='none')
     phone = Column(String(), default='none')
     time = Column(String(), default='none')

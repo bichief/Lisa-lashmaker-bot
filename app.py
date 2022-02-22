@@ -13,8 +13,6 @@ async def on_startup(dispatcher):
     # Подключаем БД
     await init_db()
 
-    # Уведомляет про запуск
-
 
 if __name__ == '__main__':
     executor.start_polling(dp, on_startup=on_startup)

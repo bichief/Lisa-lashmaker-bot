@@ -2,6 +2,7 @@ import os
 
 import aiofiles
 
+from utils.db_api.commands.customers import get_from_customers
 from utils.db_api.commands.service import get_service_id
 from utils.db_api.commands.time_service import get_time_id
 
@@ -44,6 +45,21 @@ async def insert_service_add():
 
     async with aiofiles.open('service.txt', mode='a', encoding='utf-8') as f:
         await f.write('ID | Название | Описание | Цена')
+        await f.write('\n')
+        await f.write('\n')
+        for row in rows:
+            await f.write(row)
+            await f.write('\n')
+        f.close()
+
+async def insert_clients_all():
+    rows = await get_from_customers()
+
+    if os.path.exists('clients.txt'):
+        os.remove('clients.txt')
+
+    async with aiofiles.open('clients.txt', mode='a', encoding='utf-8') as f:
+        await f.write('ID | Имя | Номер | Время | День | Название | Баланс')
         await f.write('\n')
         await f.write('\n')
         for row in rows:

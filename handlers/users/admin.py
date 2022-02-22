@@ -9,8 +9,8 @@ from handlers.users.start import start_cmd
 from keyboards.default.admin_markup import admin, edit_db_time, add_db_time, edit_service_db_key
 from loader import dp, bot
 from states.admin import Admin
-from utils.admin_cmds import insert_txt, insert_txt_delete, insert_service_add
-from utils.db_api.commands.customers import get_users
+from utils.admin_cmds import insert_txt_delete, insert_service_add, insert_clients_all
+from utils.db_api.commands.customers import get_users, deduct_referral_balance
 from utils.db_api.commands.service import add_service_to_db, delete_service_db
 from utils.db_api.commands.time_service import time_add_db, delete_time
 
@@ -26,6 +26,28 @@ async def admin_login(message: types.Message):
 async def go_menu(message):
     await start_cmd(message)
 
+
+@dp.message_handler(Text(equals='Списать баллы'))
+async def deduct_points(message: types.Message):
+    await insert_clients_all()
+    async with aiofiles.open('clients.txt', mode='rb') as f:
+        await bot.send_document(message.chat.id, f,
+                                caption='Введите ID клиента и сумму снятия бонусов, ЧЕРЕЗ пробел.\n\n'
+                                        'Пример: 1 100')
+        f.close()
+    await Admin.Delete_balance.set()
+
+
+@dp.message_handler(state=Admin.Delete_balance)
+async def next_deduct_points(message: types.Message, state: FSMContext):
+    data = message.text.split(' ')
+
+    customer_id = data[0]
+    amount = data[1]
+    await deduct_referral_balance(customer_id, amount)
+
+    await message.answer(f'<b>{amount}</b> баллов были успешно сняты!')
+    await state.reset_state()
 
 @dp.message_handler(Text(equals='Время'))
 async def edit_time(message: types.Message):

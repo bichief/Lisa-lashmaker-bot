@@ -8,6 +8,9 @@ admin = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[
         KeyboardButton(text='Услуги')
     ],
     [
+        KeyboardButton(text='Списать баллы')
+    ],
+    [
         KeyboardButton(text='Рассылка пользователям')
     ],
     [

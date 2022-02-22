@@ -5,6 +5,9 @@ main_menu = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[
         KeyboardButton(text='Записаться')
     ],
     [
+        KeyboardButton(text='Реферальная система')
+    ],
+    [
         KeyboardButton(text='Где нас найти')
     ],
     [

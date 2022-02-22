@@ -7,3 +7,4 @@ class Admin(StatesGroup):
     Add_service = State()
     Delete_service = State()
     For_all = State()
+    Delete_balance = State()
