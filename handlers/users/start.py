@@ -12,7 +12,6 @@ from loader import dp
 
 @dp.message_handler(CommandStart())
 async def start_cmd(message: types.Message):
-    try:
         deep_link = message.get_args()
 
         await cs.add_customer(telegram_id=message.from_user.id)
@@ -34,8 +33,7 @@ async def start_cmd(message: types.Message):
                                                '👩‍💻Вы зарегестрировались по реферальной ссылке.\n'
                                                f'💁‍♀Имя вашего реферала - {referral_name}',
                                        reply_markup=main_menu)
-    except:
-        pass
+
 
 
 @dp.message_handler(Text(equals='Где нас найти'))
