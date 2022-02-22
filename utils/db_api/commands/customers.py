@@ -96,6 +96,24 @@ async def get_from_customers():
         return array
 
 
+async def collect_all_information():
+    async with async_sessionmaker() as session:
+        info = select(Customers)
+        array = []
+        result = await session.execute(info)
+
+        for row in result.scalars():
+            array.append(
+                'ID | TG_ID | Имя | Номер | Заблокирован\n'
+                f'{row.id} | {row.telegram_id} | {row.name} | {row.phone} | {row.blocked}\n\n'
+                f'ID реферала | Имя реферала | Бонусный баланс\n'
+                f'{row.referral} | {row.referral_name} | {row.referral_balance}\n\n'
+                f'Запись (если none - значит, не записан)\n'
+                f'День | Время | Название услуги\n'
+                f'{row.day} | {row.time} | {row.service_name}')
+        return array
+
+
 async def get_users():
     try:
         array = []
@@ -184,7 +202,6 @@ async def get_balance(telegram_id):
 
 async def deduct_referral_balance(customer_id, amount):
     async with async_sessionmaker() as session:
-
         data = select(Customers).where(Customers.id == int(customer_id))
 
         result = await session.execute(data)
@@ -199,3 +216,55 @@ async def deduct_referral_balance(customer_id, amount):
         )
         await session.execute(info)
         await session.commit()
+
+
+async def finding_by_phone(phone):
+    async with async_sessionmaker() as session:
+        info = select(Customers).where(Customers.phone == phone)
+        array = []
+        result = await session.execute(info)
+
+        for row in result.scalars():
+            array.append(
+                'ID | TG_ID | Имя | Номер | Заблокирован\n'
+                f'{row.id} | {row.telegram_id} | {row.name} | {row.phone} | {row.blocked}\n\n'
+                f'ID реферала | Имя реферала | Бонусный баланс\n'
+                f'{row.referral} | {row.referral_name} | {row.referral_balance}\n\n'
+                f'Запись (если none - значит, не записан)\n'
+                f'День | Время | Название услуги\n'
+                f'{row.day} | {row.time} | {row.service_name}')
+        if len(array) == 0:
+            return False
+        else:
+            return array
+
+
+async def blocked_users_check():
+    async with async_sessionmaker() as session:
+        info = select(Customers)
+        array = []
+        result = await session.execute(info)
+
+        for row in result.scalars():
+            array.append(f'{row.id} | {row.telegram_id} | {row.name} | {row.phone}')
+        return array
+
+
+async def update_block_status(telegram_id):
+    async with async_sessionmaker() as session:
+        info = (
+            update(Customers).where(Customers.telegram_id == int(telegram_id)).values(blocked='yes')
+        )
+        await session.execute(info)
+        await session.commit()
+
+
+async def get_blocked_users():
+    async with async_sessionmaker() as session:
+        info = select(Customers)
+        array = []
+        result = await session.execute(info)
+
+        for row in result.scalars():
+            array.append(row.telegram_id)
+        return array

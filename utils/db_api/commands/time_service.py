@@ -41,7 +41,7 @@ async def delete_time(time_id):
 
 async def time_add_db(day, time):
     async with async_sessionmaker() as session:
-        await session.merge(Time(day=day, time=time, state='false'))
+        await session.merge(Time(day=day, time=time))
         await session.commit()
 
 
@@ -53,5 +53,5 @@ async def get_time_id():
         result = await session.execute(info)
 
         for row in result.scalars():
-            array.append(f'{row.id} | {row.service_name} | {row.day} | {row.time}')
+            array.append(f'{row.id} | {row.day} | {row.time}')
         return array

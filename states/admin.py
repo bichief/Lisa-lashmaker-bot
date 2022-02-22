@@ -8,3 +8,5 @@ class Admin(StatesGroup):
     Delete_service = State()
     For_all = State()
     Delete_balance = State()
+    Phone_find = State()
+    Block = State()

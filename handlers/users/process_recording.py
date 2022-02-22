@@ -8,7 +8,7 @@ from keyboards.inline.time_markup import time_markup
 from loader import dp
 from states.get_contacts import GetContacts
 from utils.db_api.commands.customers import get_info, update_phone, update_name, update_date, update_time, \
-    update_service_name, get_all_from_customers, update_referral_balance
+    update_service_name, get_all_from_customers, update_referral_balance, get_blocked_users
 from utils.db_api.commands.service import check_rows, get_info_service
 from utils.db_api.commands.time_service import delete_time
 from utils.send_for_admin import new_customer
@@ -18,14 +18,18 @@ from utils.validators_phone import validator
 @dp.message_handler(Text(equals='Записаться'))
 async def recording(message: types.Message):
     try:
-        if await check_rows() is True:
-            await message.answer('💁‍♀К сожалению, услуги отсутствуют.')
+        blocked = await get_blocked_users()
+        if message.from_user.id in blocked:
+            pass
         else:
-            keyboard = await markup()
+            if await check_rows() is True:
+                await message.answer('💁‍♀К сожалению, услуги отсутствуют.')
+            else:
+                keyboard = await markup()
 
-            photo = 'AgACAgIAAxkBAAIDzGITkqgqVjG11a87Tq-B21vxRdiuAAKNuTEbg_2ZSNsHfH_VyRj5AQADAgADeQADIwQ'
+                photo = 'AgACAgIAAxkBAAIDzGITkqgqVjG11a87Tq-B21vxRdiuAAKNuTEbg_2ZSNsHfH_VyRj5AQADAgADeQADIwQ'
 
-            await message.answer_photo(photo=photo, caption='💁‍♀Предлагаю тебе выбрать желаемый эффект:',
+                await message.answer_photo(photo=photo, caption='💁‍♀Предлагаю тебе выбрать желаемый эффект:',
                                        reply_markup=keyboard)
     except:
         pass

@@ -6,13 +6,15 @@ from aiogram.utils.exceptions import BotBlocked
 
 from data import config
 from handlers.users.start import start_cmd
-from keyboards.default.admin_markup import admin, edit_db_time, add_db_time, edit_service_db_key
+from keyboards.default.admin_markup import admin, edit_db_time, add_db_time, edit_service_db_key, users_markup
 from loader import dp, bot
 from states.admin import Admin
-from utils.admin_cmds import insert_txt_delete, insert_service_add, insert_clients_all
-from utils.db_api.commands.customers import get_users, deduct_referral_balance
+from utils.admin_cmds import insert_txt_delete, insert_service_add, insert_clients_all, insert_all_about_users, \
+    insert_by_phone, insert_blocked_users
+from utils.db_api.commands.customers import get_users, deduct_referral_balance, update_block_status
 from utils.db_api.commands.service import add_service_to_db, delete_service_db
 from utils.db_api.commands.time_service import time_add_db, delete_time
+from utils.validators_phone import validator
 
 
 @dp.message_handler(Command('login'), user_id=[417436565, 1955750981])
@@ -22,12 +24,12 @@ async def admin_login(message: types.Message):
                                'Выберите необходимый функционал на клавиатуре', reply_markup=admin)
 
 
-@dp.message_handler(Text(equals='Вернуться в меню'))
+@dp.message_handler(Text(equals='Вернуться в меню'), user_id=config.ADMINS)
 async def go_menu(message):
     await start_cmd(message)
 
 
-@dp.message_handler(Text(equals='Списать баллы'))
+@dp.message_handler(Text(equals='Списать баллы'), user_id=config.ADMINS)
 async def deduct_points(message: types.Message):
     await insert_clients_all()
     async with aiofiles.open('clients.txt', mode='rb') as f:
@@ -49,17 +51,18 @@ async def next_deduct_points(message: types.Message, state: FSMContext):
     await message.answer(f'<b>{amount}</b> баллов были успешно сняты!')
     await state.reset_state()
 
-@dp.message_handler(Text(equals='Время'))
+
+@dp.message_handler(Text(equals='Время'), user_id=config.ADMINS)
 async def edit_time(message: types.Message):
     await message.answer('Выберите необходимое действие со временем записи.', reply_markup=edit_db_time)
 
 
-@dp.message_handler(Text(equals='Добавить время'))
+@dp.message_handler(Text(equals='Добавить время'), user_id=config.ADMINS)
 async def add_time(message: types.Message):
     await message.answer('Выберите день, в котором Вы бы хотели добавить время для записи.', reply_markup=add_db_time)
 
 
-@dp.callback_query_handler(Text(startswith='edit_'))
+@dp.callback_query_handler(Text(startswith='edit_'), user_id=config.ADMINS)
 async def second_step_add_time(call: types.CallbackQuery):
     global day
     regex = call.data.split('_')
@@ -80,7 +83,7 @@ async def state_machine_add_time(message: types.Message, state: FSMContext):
     await state.reset_state()
 
 
-@dp.message_handler(Text(equals='Удалить время'))
+@dp.message_handler(Text(equals='Удалить время'), user_id=config.ADMINS)
 async def delete_db_time(message: types.Message):
     await insert_txt_delete()
     async with aiofiles.open('time.txt', mode='rb') as f:
@@ -99,13 +102,13 @@ async def delete_second(message: types.Message, state: FSMContext):
     await state.reset_state()
 
 
-@dp.message_handler(Text(equals='Услуги'))
+@dp.message_handler(Text(equals='Услуги'), user_id=config.ADMINS)
 async def add_service(message: types.Message):
     await message.answer('Хорошо.\n'
                          'Выберите необходимое действие с услугами.', reply_markup=edit_service_db_key)
 
 
-@dp.message_handler(Text(equals='Добавить услугу'))
+@dp.message_handler(Text(equals='Добавить услугу'), user_id=config.ADMINS)
 async def add_db_service(message: types.Message):
     await message.answer('Введите текс для добавления услуги в следующем формате!\n\n'
                          'Название|Описание|Цена')
@@ -120,7 +123,7 @@ async def service_commit(message: types.Message, state: FSMContext):
     await state.reset_state(with_data=False)
 
 
-@dp.message_handler(Text(equals='Удалить услугу'))
+@dp.message_handler(Text(equals='Удалить услугу'), user_id=config.ADMINS)
 async def edit_service(message: types.Message):
     await insert_service_add()
     async with aiofiles.open('service.txt', mode='rb') as f:
@@ -139,7 +142,7 @@ async def delete_service(message: types.Message, state: FSMContext):
     await state.reset_state()
 
 
-@dp.message_handler(Text(equals='Рассылка пользователям'))
+@dp.message_handler(Text(equals='Рассылка пользователям'), user_id=config.ADMINS)
 async def for_all_users(message: types.Message):
     await message.answer('Супер, введите сообщение для рассылки.')
     await Admin.For_all.set()
@@ -153,7 +156,6 @@ async def send_for_all(message: types.Message, state: FSMContext):
     blocked = 0
 
     array = await get_users()
-    print(array)
     try:
         for row in array:
             await bot.send_message(
@@ -167,4 +169,52 @@ async def send_for_all(message: types.Message, state: FSMContext):
     await message.answer('Сообщение было успешно доставлено.\n\n'
                          f'Отправилось - {allowed} пользователям\n'
                          f'Не отправилось - {blocked} пользователям')
+    await state.reset_state()
+
+
+@dp.message_handler(Text(equals='Пользователи'), user_id=config.ADMINS)
+async def database_func(message: types.Message):
+    await message.answer('В данном меню Вы можете просматривать данные пользователей, которые авторизованы в Боте.\n'
+                         'Так же, заносить их в Черный Список', reply_markup=users_markup)
+
+@dp.message_handler(Text(equals='Все пользователи'))
+async def all_users_database(message: types.Message):
+    await insert_all_about_users()
+    async with aiofiles.open('clients.txt', mode='rb') as f:
+        await bot.send_document(message.chat.id, f,
+                                caption='Все данные о всех пользователях в Базе Данных находятся в этом файле.')
+        f.close()
+
+@dp.message_handler(Text(equals='Найти пользователя по номеру телефона'))
+async def find_for_phone(message: types.Message):
+    await message.answer('Хорошо, отправьте номер в следующем формате:\n'
+                         '+79995554433')
+    await Admin.Phone_find.set()
+
+@dp.message_handler(state=Admin.Phone_find)
+async def next_step_finding(message: types.Message, state: FSMContext):
+    text = message.text
+
+    phone = await validator(phone=text)
+
+    if phone:
+        await state.reset_state()
+        await insert_by_phone(phone, message)
+    else:
+        await message.answer('Номер введен неверно, попробуйте еще раз.')
+
+@dp.message_handler(Text(equals='Добавить пользователя в ЧС'))
+async def add_blocked_user(message: types.Message):
+    await insert_blocked_users()
+    async with aiofiles.open('clients.txt', mode='rb') as f:
+        await bot.send_document(message.chat.id, f,
+                                caption='Хорошо, введите TG_ID пользователя\n')
+        f.close()
+    await Admin.Block.set()
+
+@dp.message_handler(state=Admin.Block)
+async def get_tg_id_block(message: types.Message, state: FSMContext):
+    telegram_id = message.text
+    await update_block_status(telegram_id)
+    await message.answer(f'Пользователь {telegram_id} был успешно заблокирован.')
     await state.reset_state()

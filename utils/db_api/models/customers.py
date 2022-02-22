@@ -16,6 +16,7 @@ class Customers(Base):
     time = Column(String(), default='none')
     day = Column(String(), default='none')
     service_name = Column(String(), default='none')
+    blocked = Column(String(), default='no')
 
     query: sql.Select
 

@@ -2,10 +2,11 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMar
 
 admin = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[
     [
-        KeyboardButton(text='Время')
+        KeyboardButton(text='Время'),
+        KeyboardButton(text='Услуги')
     ],
     [
-        KeyboardButton(text='Услуги')
+        KeyboardButton(text='Пользователи')
     ],
     [
         KeyboardButton(text='Списать баллы')
@@ -60,5 +61,17 @@ edit_service_db_key = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[
     ],
     [
         KeyboardButton(text='Удалить услугу')
+    ]
+])
+
+users_markup = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[
+    [
+        KeyboardButton(text='Все пользователи')
+    ],
+    [
+        KeyboardButton(text='Найти пользователя по номеру телефона')
+    ],
+    [
+        KeyboardButton(text='Добавить пользователя в ЧС')
     ]
 ])
