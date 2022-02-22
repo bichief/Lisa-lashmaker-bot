@@ -16,4 +16,4 @@ async def referral_message(message: types.Message):
                                                     f'Ваша ссылка для приглащения:\n'
                                                     f't.me/lisalashmaker_bot?start={message.from_user.id}\n\n\n'
                                                     f'Ваш баланс: <b>{balance} баллов.</b>\n'
-                                                    '(1 балл = 1 рубль)', disable_web_page_preview=True)
+                                                    '(1 балл = 1 рубль)')
