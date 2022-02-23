@@ -27,7 +27,7 @@ async def admin_login(message: types.Message):
 
 @dp.message_handler(Text(equals='Вернуться в меню'), user_id=config.ADMINS)
 async def go_menu(message: types.Message):
-    await message.answer('Вы перешли в основное меню', reply_markup=menu_markup)
+    await message.answer('Чтобы вернуться в меню, введите /start')
 
 
 @dp.message_handler(Text(equals='Списать баллы'), user_id=config.ADMINS)
