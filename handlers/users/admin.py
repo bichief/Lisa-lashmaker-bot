@@ -6,6 +6,7 @@ from aiogram.utils.exceptions import BotBlocked
 
 from data import config
 from handlers.users.start import start_cmd
+from keyboards.default import menu_markup
 from keyboards.default.admin_markup import admin, edit_db_time, add_db_time, edit_service_db_key, users_markup
 from loader import dp, bot
 from states.admin import Admin
@@ -25,8 +26,8 @@ async def admin_login(message: types.Message):
 
 
 @dp.message_handler(Text(equals='Вернуться в меню'), user_id=config.ADMINS)
-async def go_menu(message):
-    await start_cmd(message)
+async def go_menu(message: types.Message):
+    await message.answer('Вы перешли в основное меню', reply_markup=menu_markup)
 
 
 @dp.message_handler(Text(equals='Списать баллы'), user_id=config.ADMINS)
