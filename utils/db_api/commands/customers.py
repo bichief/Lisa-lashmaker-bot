@@ -261,7 +261,7 @@ async def update_block_status(telegram_id):
 
 async def get_blocked_users():
     async with async_sessionmaker() as session:
-        info = select(Customers)
+        info = select(Customers).where(Customers.blocked == 'yes')
         array = []
         result = await session.execute(info)
 
