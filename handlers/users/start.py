@@ -63,4 +63,3 @@ async def portfolio(message: types.Message):
         await message.answer_photo(photo,
                                    '🙆‍♀Если Вы хотите ознакомиться с моими работами, то нажмите на кнопку ниже.',
                                    reply_markup=link)
-        await message.answer(message.photo.file_id[-1])
